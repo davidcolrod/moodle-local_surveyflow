@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/surveyflow/db" VERSION="20261020" COMMENT="XMLDB file for Moodle local/surveyflow"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <!-- TABLA DE PLANTILLAS -->
+    <TABLE NAME="local_surveyflow_templates" COMMENT="Plantillas principales de encuestas Survey Flow">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" COMMENT="Nombre de la plantilla"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" COMMENT="Descripcion institucional de la encuesta"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
+    <!-- TABLA DE PREGUNTAS -->
+    <TABLE NAME="local_surveyflow_questions" COMMENT="Preguntas asociadas a cada plantilla de encuesta">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="template_id" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="ID de la plantilla contenedora"/>
+        <FIELD NAME="questiontext" TYPE="text" NOTNULL="true" COMMENT="Enunciado de la pregunta"/>
+        <FIELD NAME="questiontype" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="scale_likert" COMMENT="Tipo de pregunta (likert, texto, etc.)"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="Orden de visualizacion"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_template" TYPE="foreign" FIELDS="template_id" REFTABLE="local_surveyflow_templates" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
+    <!-- TABLA DE ASIGNACIONES A CURSOS / CATEGORIAS -->
+    <TABLE NAME="local_surveyflow_assignments" COMMENT="Asignaciones institucionales de encuestas">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="template_id" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="target_type" TYPE="char" LENGTH="20" NOTNULL="true" COMMENT="course o category"/>
+        <FIELD NAME="target_id" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="ID del curso o categoria destino"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" COMMENT="1 activo, 0 inactivo"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_template_assign" TYPE="foreign" FIELDS="template_id" REFTABLE="local_surveyflow_templates" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
+    <!-- TABLA DE ENVÍOS (SUBMISSIONS) -->
+    <TABLE NAME="local_surveyflow_submissions" COMMENT="Registro de envios completados por los usuarios">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="template_id" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="ID del usuario participante"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="ID del curso donde respondio"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_template_sub" TYPE="foreign" FIELDS="template_id" REFTABLE="local_surveyflow_templates" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+
+    <!-- TABLA DE RESPUESTAS INDIVIDUALES -->
+    <TABLE NAME="local_surveyflow_responses" COMMENT="Respuestas detalladas por pregunta utilizando answertext">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="submission_id" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="answertext" TYPE="text" NOTNULL="true" COMMENT="Contenido de la respuesta emitida"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_submission" TYPE="foreign" FIELDS="submission_id" REFTABLE="local_surveyflow_submissions" REFFIELDS="id"/>
+        <KEY NAME="fk_question" TYPE="foreign" FIELDS="question_id" REFTABLE="local_surveyflow_questions" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
